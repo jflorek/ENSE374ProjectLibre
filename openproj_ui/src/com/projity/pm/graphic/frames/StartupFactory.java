@@ -445,13 +445,13 @@ public abstract class StartupFactory {
 			}else{
 				SwingUtilities.invokeLater(new Runnable() {
 					public void run() {
-						if (Environment.isOpenProj()&&!Environment.isPlugin()) {
+						/*if (Environment.isOpenProj()&&!Environment.isPlugin()) {
 							LicenseDialog.showDialog(gm.getFrame(),false);
 							UserInfoDialog.showDialog(gm.getFrame(),false);
 //							DonateDialog.maybeShow(gm.getFrame(),false);
 //							TryPODDialog.maybeShow(gm.getFrame(),false); //claur
 							UpdateChecker.checkForUpdateInBackground();
-						}
+						} REMOVED TO GET RID OF LICENSE CHECKING */
 						if (welcome&&!Environment.isPlugin()) {
 							if (Environment.isOpenProj()) {
 								//LicenseDialog.showDialog(gm.getFrame(),false);
