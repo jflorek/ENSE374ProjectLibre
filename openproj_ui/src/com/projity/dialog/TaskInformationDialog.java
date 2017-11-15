@@ -132,6 +132,7 @@ public class TaskInformationDialog extends InformationDialog {
 		
 		String notes = Messages.getString("TaskInformationDialog.Notes"); //$NON-NLS-1$
 		taskTabbedPane.addTab(notes,createNotesPanel());
+		taskTabbedPane.addTab("TaskInformationDialog.Kanban", createKanbanPanel());
 		notesTabIndex = taskTabbedPane.indexOfTab(notes);
 		builder.add(taskTabbedPane);
 		mainComponent = taskTabbedPane;
@@ -157,6 +158,21 @@ public class TaskInformationDialog extends InformationDialog {
 		return builder.getPanel();
 	}
 	
+	private JComponent createKanbanPanel() {
+		FieldComponentMap map = createMap();
+		FormLayout layout = new FormLayout(
+		        "max(50dlu;pref), 3dlu, 90dlu 10dlu, p, 3dlu,90dlu,60dlu", // extra padding on right is for estimated field //$NON-NLS-1$
+				"p, 3dlu,p, 3dlu,p, 3dlu, p, 3dlu, p, 3dlu, p,3dlu, p, 3dlu,p, 3dlu, fill:50dlu:grow"); //$NON-NLS-1$
+		
+		DefaultFormBuilder builder = new DefaultFormBuilder(layout);
+		CellConstraints cc = new CellConstraints();
+		builder.setDefaultDialogBorder();
+		builder.add(createHeaderFieldsPanel(map),cc.xyw(builder.getColumn(), builder
+				.getRow(), 8));
+		
+		return builder.getPanel();
+		
+	}
 
 	private JComponent createGeneralPanel(){
 		FieldComponentMap map = createMap();
