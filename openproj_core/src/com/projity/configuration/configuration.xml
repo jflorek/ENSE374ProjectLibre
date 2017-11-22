@@ -616,6 +616,7 @@ must direct them back to http://www.projity.com.
 				readOnly="true" />
 			<field property="projectId" id="Field.projectId"
 				readOnly="true" />
+			<field property="taskKanban" id="Field.taskKanban" />
 			<!--			<field property="debugDependencyOrder" id="Field.debugDependencyOrder" readOnly="true"/>	-->
 		<!-- 
 			<field property="predecessorOrder" id="Field.predecessorOrder" readOnly="true" />

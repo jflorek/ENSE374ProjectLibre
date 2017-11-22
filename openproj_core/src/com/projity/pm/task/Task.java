@@ -279,7 +279,16 @@ public abstract class Task implements HasKey, HasNotes, HasCalendar, HasDependen
 
 		return assignment;
 	}
+	
+	String taskKanban = null;
 
+	public String getTaskKanban() {
+		return taskKanban;
+	}
+	
+	public void setTaskKanban(String kanbanDetail) {
+		taskKanban = kanbanDetail;
+	}
 
 	/**
 	 * @return Returns the project.

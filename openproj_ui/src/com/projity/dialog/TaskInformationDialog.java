@@ -170,6 +170,9 @@ public class TaskInformationDialog extends InformationDialog {
 		builder.add(createHeaderFieldsPanel(map),cc.xyw(builder.getColumn(), builder
 				.getRow(), 8));
 		
+		builder.nextLine(2);
+		map.append(builder, "Field.taskKanban");
+		
 		return builder.getPanel();
 		
 	}
