@@ -85,6 +85,9 @@ import com.projity.pm.key.HasId;
 import com.projity.pm.task.NormalTask;
 import com.projity.pm.task.Task;
 import com.projity.strings.Messages;
+import java.awt.*;
+import java.awt.event.*;
+import javax.swing.*;
 /**
  *
  */
@@ -158,6 +161,7 @@ public class TaskInformationDialog extends InformationDialog {
 		return builder.getPanel();
 	}
 	
+	private JLabel tempLabel;
 	private JComponent createKanbanPanel() {
 		FieldComponentMap map = createMap();
 		FormLayout layout = new FormLayout(
@@ -169,12 +173,33 @@ public class TaskInformationDialog extends InformationDialog {
 		builder.setDefaultDialogBorder();
 		builder.add(createHeaderFieldsPanel(map),cc.xyw(builder.getColumn(), builder
 				.getRow(), 8));
+
+		builder.nextLine(2);
+		JLabel label = new JLabel("Default Value");
+		builder.add(label);
+		
+		builder.nextLine(2);
+		JButton button = new JButton("Button");
+		button.addActionListener(new JunkListener(label));
+		builder.add(button);
 		
 		builder.nextLine(2);
 		map.append(builder, "Field.taskKanban");
 		
 		return builder.getPanel();
 		
+	}
+	
+	private class JunkListener implements ActionListener {
+		int myInt;
+		JLabel target;
+		public JunkListener(JLabel targetLabel) {
+			target = targetLabel;
+		}
+		public void actionPerformed(ActionEvent e) {
+			myInt++;
+			target.setText("Number: " + myInt);
+		}
 	}
 
 	private JComponent createGeneralPanel(){
