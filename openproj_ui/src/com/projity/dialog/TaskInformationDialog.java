@@ -50,6 +50,9 @@ must direct them back to http://www.projity.com.
 package com.projity.dialog;
 
 import java.awt.Component;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+import java.util.ArrayList;
 import java.awt.Frame;
 
 import javax.swing.JComponent;
@@ -162,6 +165,7 @@ public class TaskInformationDialog extends InformationDialog {
 	}
 	
 	private JLabel tempLabel;
+	private JComponent temp;
 	private JComponent createKanbanPanel() {
 		FieldComponentMap map = createMap();
 		FormLayout layout = new FormLayout(
@@ -174,6 +178,28 @@ public class TaskInformationDialog extends InformationDialog {
 		builder.add(createHeaderFieldsPanel(map),cc.xyw(builder.getColumn(), builder
 				.getRow(), 8));
 
+
+		builder.nextLine(2);
+		JComponent comp = map.append(builder, "Field.taskKanban");
+		
+
+		builder.nextLine(2);
+		JLabel subTask = new JLabel("task (CLICK THIS)");
+		subTask.addMouseListener(new MouseAdapter() {
+			public void mouseClicked(MouseEvent me) {
+				System.out.println("Task clicked.");
+			}
+		});
+		builder.add(subTask);
+		
+		
+
+		JComponent comp2 = new KanbanThing();
+		builder.nextLine(2);
+		builder.add(comp2);
+				
+		
+		
 		builder.nextLine(2);
 		JLabel label = new JLabel("Default Value");
 		builder.add(label);
@@ -183,11 +209,139 @@ public class TaskInformationDialog extends InformationDialog {
 		button.addActionListener(new JunkListener(label));
 		builder.add(button);
 		
-		builder.nextLine(2);
-		map.append(builder, "Field.taskKanban");
+		if (comp instanceof JTextField) {
+			JTextField savedValue = (JTextField)comp;
+			temp = comp;
+			builder.nextLine(2);
+			button = new JButton("AddToFile");
+			button.addActionListener(new MoveValueListener(label, savedValue));
+			builder.add(button);
+		}
+		
+				
+		builder.nextLine();
+		
 		
 		return builder.getPanel();
 		
+	}
+	
+	private class KanbanThing extends JLabel {
+		private class Subtask {
+			String name;
+			double progress;
+			public Subtask(String myName, double myProgress) {
+				name = myName;
+				progress = myProgress;
+			}
+			public void setProgress(double myProgress) {
+				progress = myProgress;
+			}
+			public String getName() {
+				return name;
+			}
+			public String toString() {
+				return name + ": " + progress;
+			}
+		}
+		ArrayList<Subtask> tasks;
+		
+		public KanbanThing() {
+			tasks = new ArrayList();
+			updateContents();
+			addMouseListener(new MouseAdapter() {
+				public void mouseClicked(MouseEvent me) {
+					DoCommand(((String)JOptionPane.showInputDialog(null, "Command:")).split("\\s+"));
+				}
+			});
+		}
+		
+		private String getContents() {
+			String contents = "<HTML>Contents:";
+			for (int i = 0; i < tasks.size(); i++) {
+				contents += "<br>" + tasks.get(i).toString();
+			}
+			return contents;
+		}
+		
+		private void updateContents() {
+			setText(getContents());
+		}
+		
+		private Subtask findTask(String taskName) {
+			for (int i = 0; i < tasks.size(); i++) {
+				if (tasks.get(i).getName().equals(taskName)) {
+					return tasks.get(i);
+				}
+			}
+			return null;
+		}
+		
+		private void DoCommand(String[] cmds) {
+			if (cmds.length >= 2) {
+				switch(cmds[0]) {
+				case "addtask":
+					tasks.add(new Subtask(cmds[1], 0));
+					break;
+				case "remtask":
+				{
+					Subtask found = findTask(cmds[1]);
+					if (found != null) {
+						tasks.remove(found);
+					}
+				}
+					break;
+				case "updtask":
+				{
+					Subtask found = findTask(cmds[1]);
+					if (found != null && cmds.length >= 3) {
+						found.setProgress(Double.parseDouble(cmds[2]));
+					}
+				}
+					break;
+				default:
+					return;
+				}
+				updateContents();
+			}
+		}
+	}
+	
+	private class UpdateLabelListener extends MouseAdapter {
+		JLabel target;
+		public UpdateLabelListener(JLabel myTarget) {
+			target = myTarget;
+		}
+		public void mouseClicked(MouseEvent me) {
+			target.setText("<html>Label " + (String)JOptionPane.showInputDialog(null, "Enter thing:"));
+		}
+	}
+	
+	
+	private class AnotherListener implements ActionListener {
+		TaskInformationDialog d;
+		JTextField source;
+		public AnotherListener(TaskInformationDialog d, JTextField source) {
+			this.d = d;
+			this.source = source;
+		}
+		public void actionPerformed(ActionEvent e) {
+			Task task = (Task)d.getObject();
+			JTextField temp = (JTextField)(d.temp);
+			task.setTaskKanban(source.getText());
+		}
+	}
+	
+	private class MoveValueListener implements ActionListener {
+		JLabel source;
+		JTextField target;
+		public MoveValueListener(JLabel mySource, JTextField myTarget) {
+			source = mySource;
+			target = myTarget;
+		}
+		public void actionPerformed(ActionEvent e) {
+			target.setText(source.getText());
+		}
 	}
 	
 	private class JunkListener implements ActionListener {
