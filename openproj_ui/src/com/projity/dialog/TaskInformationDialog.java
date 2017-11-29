@@ -53,6 +53,7 @@ import java.awt.Component;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.util.ArrayList;
+import java.util.Date;
 import java.awt.Frame;
 
 import javax.swing.JComponent;
@@ -66,6 +67,7 @@ import com.jgoodies.forms.layout.CellConstraints;
 import com.jgoodies.forms.layout.FormLayout;
 import com.projity.association.AssociationList;
 import com.projity.configuration.Configuration;
+//import com.projity.dialog.TaskInformationDialog.KanbanThing.Subtask;
 import com.projity.dialog.util.FieldComponentMap;
 import com.projity.field.Field;
 import com.projity.graphic.configuration.SpreadSheetCategories;
@@ -227,12 +229,34 @@ public class TaskInformationDialog extends InformationDialog {
 	}
 	
 	private class KanbanThing extends JLabel {
+		private class ProgressReport {
+			Date time;
+			double progress;
+			
+			public ProgressReport(Date time, double progress) {
+				this.time = time;
+				this.progress = progress;
+			}
+			
+			public String toString() {
+				return time + " - " + progress;
+			}
+		}
 		private class Subtask {
+			ArrayList<ProgressReport> reports;
+			boolean movedToNext = false;
 			String name;
 			double progress;
 			public Subtask(String myName, double myProgress) {
+				reports = new ArrayList<ProgressReport>();
 				name = myName;
 				progress = myProgress;
+			}
+			public void moveToNext() {
+				movedToNext = true;
+			}
+			public void addReport(ProgressReport report) {
+				reports.add(report);
 			}
 			public void setProgress(double myProgress) {
 				progress = myProgress;
@@ -241,13 +265,21 @@ public class TaskInformationDialog extends InformationDialog {
 				return name;
 			}
 			public String toString() {
-				return name + ": " + progress;
+				String val = getName();
+				if (movedToNext) {
+					val += " (moved to next)";
+				}
+				val += ": ";
+				for (int i = 0; i < reports.size(); i++) {
+					val += "(" + reports.get(i).toString() + "), ";
+				}
+				return val;
 			}
 		}
 		ArrayList<Subtask> tasks;
 		
 		public KanbanThing() {
-			tasks = new ArrayList();
+			tasks = new ArrayList<Subtask>();
 			updateContents();
 			addMouseListener(new MouseAdapter() {
 				public void mouseClicked(MouseEvent me) {
@@ -280,10 +312,10 @@ public class TaskInformationDialog extends InformationDialog {
 		private void DoCommand(String[] cmds) {
 			if (cmds.length >= 2) {
 				switch(cmds[0]) {
-				case "addtask":
+				case "create":
 					tasks.add(new Subtask(cmds[1], 0));
 					break;
-				case "remtask":
+				case "delete":
 				{
 					Subtask found = findTask(cmds[1]);
 					if (found != null) {
@@ -291,14 +323,22 @@ public class TaskInformationDialog extends InformationDialog {
 					}
 				}
 					break;
-				case "updtask":
+				case "update":
 				{
 					Subtask found = findTask(cmds[1]);
 					if (found != null && cmds.length >= 3) {
-						found.setProgress(Double.parseDouble(cmds[2]));
+						found.addReport(new ProgressReport(new Date(), Double.parseDouble(cmds[2])));
+						//found.setProgress(Double.parseDouble(cmds[2]));
 					}
 				}
 					break;
+				case "cancel": {
+					Subtask found = findTask(cmds[1]);
+					if (found != null) {
+						found.moveToNext();
+					}
+				}
+				break;
 				default:
 					return;
 				}
